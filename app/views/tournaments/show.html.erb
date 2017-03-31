@@ -2,10 +2,10 @@
   <h2><%= @tournament.name %></h2>
 
   <h5><%= tournament_date_label(@tournament) %></h5>
-
   <p>
     <%= @tournament.description %>
   </p>
+  <h5><a href="mailto:<%= @tournament.owner.email %>?Subject=<%= @tournament.name %>" target="_top">Send email</a></h5>
 
   <% if @tournament.registration_open? %>
     <%= render partial: "registration_controls", locals: { tournament: @tournament } %>

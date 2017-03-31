@@ -13,7 +13,7 @@ Rails.application.routes.draw do
   # Clearance user management
   resources :passwords, controller: "clearance/passwords", only: [:new, :create]
   resource :session, controller: "sessions", only: [:create]
-  resources :users, controller: "clearance/users", only: [:create] do
+  resources :users, controller: "users", only: [:create] do
     resource :password,
       controller: "clearance/passwords",
       only: [:create, :edit, :update]

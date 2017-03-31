@@ -3,8 +3,8 @@
 abort("Don't run db:seed in production") if Rails.env.production?
 
 users = []
-5.times do |n|
-  users << User.create!(
+11.times do |n|
+  users << User.create!(name: Faker::Name.name,
     email: Faker::Internet.email,
     password: "test")
 end

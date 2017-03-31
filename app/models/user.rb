@@ -6,6 +6,7 @@ class User < ApplicationRecord
   has_many :tournaments_playing_in, through: :registrations, source: :tournament
 
   validates :email, uniqueness: true
+  validates :name, presence: true
 
   def registration_for(tournament)
     Registration.find_by(player: self, tournament: tournament)
