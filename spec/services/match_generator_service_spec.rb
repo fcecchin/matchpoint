@@ -3,11 +3,14 @@ require "rails_helper"
 describe MatchGeneratorService do
   describe "#generate_for" do
     let(:tournament) { build_stubbed(:tournament) }
-    let(:player1) { build_stubbed(:user) }
-    let(:player2) { build_stubbed(:user) }
-    let(:player3) { build_stubbed(:user) }
-    let(:player4) { build_stubbed(:user) }
+    let(:player1) { create(:user) }
+    let(:player2) { create(:user) }
+    let(:player3) { create(:user) }
+    let(:player4) { create(:user) }
     let(:matches) { MatchGeneratorService.new.generate_for(tournament) }
+    let(:p1_matches) { matches.select { |m| m.home_player == player1 || m.away_player == player1 }}
+    let(:p2_matches) { matches.select { |m| m.home_player == player2 || m.away_player == player2 }}
+    let(:p3_matches) { matches.select { |m| m.home_player == player3 || m.away_player == player3 }}
 
     context "no players" do
       before { expect_any_instance_of(Match).to_not receive(:save!) }
@@ -54,18 +57,15 @@ describe MatchGeneratorService do
       end
 
       it "has match for player1 vs player2" do
-        expect(matches.first.home_player).to eq player1
-        expect(matches.first.away_player).to eq player2
+        expect(p1_matches.select { |m| m.home_player == player2 || m.away_player == player2 }.count).to eq 1
       end
 
       it "has match for player1 vs player3" do
-        expect(matches.second.home_player).to eq player1
-        expect(matches.second.away_player).to eq player3
+        expect(p1_matches.select { |m| m.home_player == player3 || m.away_player == player3 }.count).to eq 1
       end
 
-      it "has match for player2 vs player3" do
-        expect(matches.third.home_player).to eq player2
-        expect(matches.third.away_player).to eq player3
+      it "has match for player3 vs player2" do
+        expect(p3_matches.select { |m| m.home_player == player2 || m.away_player == player2 }.count).to eq 1
       end
     end
 
@@ -81,33 +81,27 @@ describe MatchGeneratorService do
       end
 
       it "has match for player1 vs player2" do
-        expect(matches.first.home_player).to eq player1
-        expect(matches.first.away_player).to eq player2
+        expect(p1_matches.select { |m| m.home_player == player2 || m.away_player == player2 }.count).to eq 1
       end
 
       it "has match for player1 vs player3" do
-        expect(matches.second.home_player).to eq player1
-        expect(matches.second.away_player).to eq player3
+        expect(p1_matches.select { |m| m.home_player == player3 || m.away_player == player3 }.count).to eq 1
       end
 
       it "has match for player1 vs player4" do
-        expect(matches.third.home_player).to eq player1
-        expect(matches.third.away_player).to eq player4
+        expect(p1_matches.select { |m| m.home_player == player4 || m.away_player == player4 }.count).to eq 1
       end
 
       it "has match for player2 vs player3" do
-        expect(matches.fourth.home_player).to eq player2
-        expect(matches.fourth.away_player).to eq player3
+        expect(p2_matches.select { |m| m.home_player == player3 || m.away_player == player3 }.count).to eq 1
       end
 
       it "has match for player2 vs player4" do
-        expect(matches.fifth.home_player).to eq player2
-        expect(matches.fifth.away_player).to eq player4
+        expect(p2_matches.select { |m| m.home_player == player4 || m.away_player == player4 }.count).to eq 1
       end
 
       it "has match for player3 vs player4" do
-        expect(matches[5].home_player).to eq player3
-        expect(matches[5].away_player).to eq player4
+        expect(p3_matches.select { |m| m.home_player == player4 || m.away_player == player4 }.count).to eq 1
       end
     end
   end

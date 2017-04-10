@@ -9,3 +9,9 @@ Rails.application.config.assets.version = '1.0'
 # Precompile additional assets.
 # application.js, application.css, and all non-JS/CSS in app/assets folder are already added.
 # Rails.application.config.assets.precompile += %w( search.js )
+# Require modules in lib
+
+# Load modules under lib folder
+Dir[File.join(Rails.root, 'lib', '*.rb')].each do |f|
+    require f
+end
