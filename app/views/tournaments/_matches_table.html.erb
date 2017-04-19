@@ -1,6 +1,7 @@
 <table class="table table-condensed">
   <thead>
     <tr>
+      <th>Round</th>
       <th>Home Player</th>
       <th>Away Player</th>
       <th>Match Start</th>
@@ -10,9 +11,10 @@
   <tbody>
     <% tournament.matches.each do |match| %>
       <tr>
+        <td>#<%= match.round %></td>
         <td><%= match.home_player.email %></td>
         <td><%= match.away_player.email %></td>
-        <td><%= match.start_at.strftime('%B %d %Y, %l:%M %P') if match.away_player %></td>
+        <td><%= match.start_at.strftime('%B %d %Y, %H:%M') if match.away_player %></td>
       </tr>
     <% end %>
   </tbody>

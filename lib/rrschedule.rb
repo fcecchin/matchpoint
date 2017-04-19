@@ -72,7 +72,8 @@ module RRSchedule
             :games => games.collect { |g|
               Game.new(
                 :team_a => g[:team_a],
-                :team_b => g[:team_b]
+                :team_b => g[:team_b],
+                :round => current_round
               )
             }
           )
@@ -200,7 +201,8 @@ module RRSchedule
             :team_a => gm[:team_a],
             :team_b => gm[:team_b],
             :playing_surface => gm[:ps],
-            :game_time => gm [:gt]
+            :game_time => gm [:gt],
+            :round => gm[:rd]
           )
         end
         self.gamedays << Gameday.new(:date => gamedate, :games => games)
@@ -234,7 +236,7 @@ module RRSchedule
       end
 
       #We found our playing surface and game time, add the game in the schedule.
-      @schedule << {:team_a => game.team_a, :team_b => game.team_b, :gamedate => @cur_date, :ps => @cur_ps, :gt => @cur_gt}
+      @schedule << {:team_a => game.team_a, :team_b => game.team_b, :gamedate => @cur_date, :ps => @cur_ps, :gt => @cur_gt, :rd => game.round}
       update_team_stats(game,@cur_gt,@cur_ps)
       update_resource_availability(@cur_gt,@cur_ps)
 
@@ -388,12 +390,13 @@ module RRSchedule
   end
 
   class Game
-    attr_accessor :team_a, :team_b, :playing_surface, :game_time, :game_date
+    attr_accessor :team_a, :team_b, :playing_surface, :game_time, :game_date, :round
     alias :ta :team_a
     alias :tb :team_b
     alias :ps :playing_surface
     alias :gt :game_time
     alias :gd :game_date
+    alias :rd :round
 
     def initialize(params={})
       self.team_a = params[:team_a]
@@ -401,6 +404,11 @@ module RRSchedule
       self.playing_surface = params[:playing_surface]
       self.game_time = params[:game_time]
       self.game_date = params[:game_date]
+      self.round = params[:round]
+    end
+    
+    def to_s
+      "#{round}: #{team_a} x #{team_b}"
     end
   end
 

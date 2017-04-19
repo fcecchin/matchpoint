@@ -9,7 +9,6 @@ class MatchGeneratorService
     return [] unless tournament.players.count > 1
 
     matches = []
-    start_at = tournament.start_at
 
     tournament.transaction do
       tournament.matches.destroy_all
@@ -25,10 +24,10 @@ class MatchGeneratorService
         ],
             
         #First games are played on...
-        :start_date => start_at.to_date,
+        :start_date => tournament.start_at.to_date,
         
         #array of dates to exclude
-        :exclude_dates => [Date.parse("2017/04/15"),Date.parse("2017/04/16")],
+        :exclude_dates => [],
                           
         #Number of times each team must play against each other (default is 1)
         :cycles => 1,
@@ -38,66 +37,26 @@ class MatchGeneratorService
       ).generate
       
       schedule.gamedays.each do |gd|
-        gd.games.each do |game|
-          match = Match.new(
-            tournament: tournament,
-            home_player: game.team_a,
-            away_player: game.team_b,
-            start_at: game.game_time)
-
-          match.save!
-          matches << match
+        gd.games.each do |g|
+          if ![g.team_a,g.team_b].include?(:dummy)
+            date = gd.date
+            time = g.game_time
+            match = Match.new(
+              tournament: tournament,
+              round: g.round,
+              start_at: DateTime.new(date.year, date.month, date.day, time.hour, time.minute, 0, 0),
+              home_player: g.team_a,
+              away_player: g.team_b)
+            match.save!
+            matches << match
+          end
         end
       end
-
-      # round_robin_pairings(tournament).values.each do |pair|
-      #   match = Match.new(
-      #     tournament: tournament,
-      #     home_player: pair[:home_player],
-      #     away_player: pair[:away_player],
-      #     start_at: start_at)
-
-      #   match.save!
-      #   matches << match
-      #   start_at += 3.hours # assume 3-hour match times for now
-      # end
     end
 
     matches
 
   rescue ActiveRecord::RecordInvalid
     nil
-  end
-
-  private
-
-  # Return a Hash of pairs representing the round-robin (each player plays all other players)
-  # for the given tournament. Each pair is a hash containing two keys, :home_player and :away_player.
-  def round_robin_pairings(tournament)
-    pairs = {}
-    players = tournament.players.to_a
-
-    players.each do |player|
-      other_players(player, players).each do |opponent|
-        pairs[key_for(player, opponent)] ||= { home_player: player, away_player: opponent }
-      end
-    end
-
-    pairs
-  end
-
-  def other_players(except_player, players)
-    players - Array(except_player)
-  end
-
-  # Make a hash key to store the players in a pair. The key prevents the players from playing
-  # each other more than once. The key is the player ids in order of lowest
-  # to highest.
-  def key_for(player1, player2)
-    if player1.id < player2.id
-      "#{player1.id}/#{player2.id}"
-    else
-      "#{player2.id}/#{player1.id}"
-    end
   end
 end
